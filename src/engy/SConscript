@@ -1,0 +1,7 @@
+Import('*')
+
+Source('energy_mgmt.cc')
+
+SimObject('EnergyMgmt.py')
+
+DebugFlag('EnergyMgmt')
