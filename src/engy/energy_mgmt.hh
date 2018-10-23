@@ -9,6 +9,7 @@
 //#include "engy/state_machine.hh"
 #include "params/EnergyMgmt.hh"
 #include "sim/sim_object.hh"
+#include "sim/eventq.hh"
 
 class EnergyMgmt : public SimObject
 {
@@ -38,8 +39,7 @@ protected:
     //EventWrapper<EnergyMgmt, &EnergyMgmt::broadcastMsg> event_msg;
     std::vector<double> energy_harvest_data;
     void energyHarvest();
-    /*EventWrapper<EnergyMgmt, &EnergyMgmt::energyHarvest>
-    event_energy_harvest;*/
+    EventWrapper<EnergyMgmt, &EnergyMgmt::energyHarvest> event_energy_harvest;
     //BaseEnergySM *state_machine;
     //BaseHarvester *harvest_module;
     double capacity;

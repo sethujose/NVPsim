@@ -5,7 +5,7 @@ Git Commit history
 
 
 [0002]
-
+Added changelog.txt
 
 [0001] 
 Added Energy management module:

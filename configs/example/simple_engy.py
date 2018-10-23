@@ -8,8 +8,8 @@ system.clk_domain.voltage_domain = VoltageDomain()
 system.mem_mode = 'atomic'
 system.mem_ranges = [AddrRange('512MB')]
 
-system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/energy_prof',
-                                energy_time_unit = '10us')
+system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/my_engy_prof',
+                                energy_time_unit = '1us')
 
 system.cpu = AtomicSimpleCPU()
 #system.cpu.s_energy_port = system.energy_mgmt.m_energy_port
