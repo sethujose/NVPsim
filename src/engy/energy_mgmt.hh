@@ -23,7 +23,7 @@ public:
     virtual ~EnergyMgmt();
     virtual void init();
     // Harvest energy if val < 0
-    //virtual int consumeEnergy(char *consumer, double val);
+    virtual int consumeEnergy(char *consumer, double val);
     void broadcastMsg();
     //int broadcastMsgAsEvent(const EnergyMsg &msg);
     //int handleMsg(const EnergyMsg &msg);
@@ -40,7 +40,7 @@ protected:
     std::vector<double> energy_harvest_data;
     void energyHarvest();
     EventWrapper<EnergyMgmt, &EnergyMgmt::energyHarvest> event_energy_harvest;
-    //BaseEnergySM *state_machine;
+    BaseEnergySM *state_machine;
     //BaseHarvester *harvest_module;
     double capacity;
 

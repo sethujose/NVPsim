@@ -1,7 +1,12 @@
 Import('*')
 
 Source('energy_mgmt.cc')
+Source('state_machine.cc')
+Source('two_thres.cc')
 
 SimObject('EnergyMgmt.py')
+SimObject('BaseEnergySM.py')
+SimObject('SimpleEnergySM.py')
+SimObject('TwoThresSM.py')
 
 DebugFlag('EnergyMgmt')
