@@ -13,9 +13,13 @@ cap = 1 * 0.2
 
 system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/my_engy_prof',
                                 energy_time_unit = '1us')
-                                # Threshold Design for the state machine
+
+# Threshold Design for the state machine
 system.energy_mgmt.state_machine.thres_1_to_off = 0.5 * cap * 1000 * 1.1 * 1.1
 system.energy_mgmt.state_machine.thres_off_to_1 = 0.5 * cap * 1000 * 4.5 *4.5
+
+system.energy_mgmt.capacity = cap;				# uF
+system.energy_mgmt.system_leakage = 0.2;			# leakage
 
 system.cpu = AtomicSimpleCPU()
 #system.cpu.s_energy_port = system.energy_mgmt.m_energy_port

@@ -10,6 +10,10 @@
 #include "sim/eventq.hh"
 #include "engy/state_machine.hh"
 
+#if 0 //TODO: IMPLEMENT LEAKAGE
+extern bool DFS_LRY_poweron_dirty_patch;
+#endif
+
 EnergyMgmt::EnergyMgmt(const Params *p)
         : SimObject(p),
           system_leakage(p->system_leakage),
@@ -19,7 +23,7 @@ EnergyMgmt::EnergyMgmt(const Params *p)
           //event_msg(this, false, Event::Energy_Pri),
           event_energy_harvest(this, false, Event::Energy_Pri),
           state_machine(p->state_machine),
-          //harvest_module(p->harvest_module),
+          harvest_module(p->harvest_module),
           capacity(p->capacity),
           _path_energy_profile(p->path_energy_profile)
 {
@@ -54,36 +58,36 @@ void EnergyMgmt::init()
 int
 EnergyMgmt::consumeEnergy(char *sender, double val)
 {
-    /* Consume energy if val > 0, and harvest energy if val < 0 */
-    double cons_unit;//, harv_unit;
-    // double cap_volt_upper_bound = 5;
-    //double lower_bound = state_machine->energy_consume_lower_bound; // nJ
-    //double upper_bound = 0.5 * capacity * pow(cap_volt_upper_bound, 2) * pow(10, 3); // nJ
-    DPRINTF(EnergyMgmt, "Energy %lf is consumed by %s. Energy remained: %lf\n", cons_unit, sender, energy_remained);
+    double cons_unit, harv_unit;
+    double cap_volt_upper_bound = 5;
+    double lower_bound = state_machine->energy_consume_lower_bound; // nJ
+    double upper_bound = 0.5 * capacity * pow(cap_volt_upper_bound, 2) * pow(10, 3); // nJ
+    
     // Energy Consumption, if val > 0
     if (val > 0) {
         energy_remained -= val;
         cons_unit = val;
 
         // The energy remained has a lower bound. When the lower bound is meet, the system need to power off. Energy > 0 / retention threshold.
-        // if (energy_remained < lower_bound) {
-        //     cons_unit -= (lower_bound - energy_remained);
-        //     energy_remained = lower_bound;
-        // }
+        if (energy_remained < lower_bound) {
+            cons_unit -= (lower_bound - energy_remained);
+            energy_remained = lower_bound;
+        }
         if (strcmp(sender, "AtomicCPU")==0) {
             DPRINTF(EnergyMgmt, "Energy %lf is consumed by %s. Energy remained: %lf\n", cons_unit, sender, energy_remained);
         }
     }
-/*
     // Energy Harvesting, if val < 0
-    else if (val < 0) {
+    else if (val < 0) {     
         // Todo: remove the leakage to consumptions.
         // energy leakage!
+        #if 0 //TODO: IMPLEMENT LEAKAGE
         if (DFS_LRY_poweron_dirty_patch)
         {
             energy_remained -= system_leakage;
             //DPRINTF(EnergyMgmt, "[EngyMgmt] Leakage energy is %lf. Energy remained: %lf\n", system_leakage, energy_remained);
         }
+        #endif
 
         // energy harvesting
         val *= energy_profile_mult; // adjust the supply
@@ -102,7 +106,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
         DPRINTF(EnergyMgmt, "[EngyMgmt] Energy %lf is harvested. Energy remained: %lf\n", harv_unit, energy_remained);
         //DPRINTF(EnergyMgmt, "%lf\n", energy_remained);
     }
-*/
+
     // judge if energy_remained triggers state_machine changes
     state_machine->update(energy_remained);
 

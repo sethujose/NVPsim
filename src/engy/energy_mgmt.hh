@@ -5,8 +5,8 @@
 #ifndef GEM5_ENGY_HH
 #define GEM5_ENGY_HH
 
-//#include "engy/energy_harvester.hh"
-//#include "engy/state_machine.hh"
+#include "engy/energy_harvester.hh"
+#include "engy/state_machine.hh"
 #include "params/EnergyMgmt.hh"
 #include "sim/sim_object.hh"
 #include "sim/eventq.hh"
@@ -41,7 +41,7 @@ protected:
     void energyHarvest();
     EventWrapper<EnergyMgmt, &EnergyMgmt::energyHarvest> event_energy_harvest;
     BaseEnergySM *state_machine;
-    //BaseHarvester *harvest_module;
+    BaseHarvester *harvest_module;
     double capacity;
 
     // for all SMs, the consuming msg must be 0.
