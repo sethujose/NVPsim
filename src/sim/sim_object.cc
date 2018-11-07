@@ -63,6 +63,7 @@ SimObject::SimObject(const Params *p)
 #endif
     simObjectList.push_back(this);
     probeManager = new ProbeManager(this);
+    EnergyObject::setSimObject(this); 
 }
 
 SimObject::~SimObject()

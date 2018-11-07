@@ -59,6 +59,7 @@
 #include "sim/faults.hh"
 #include "sim/full_system.hh"
 #include "sim/system.hh"
+#include "debug/EnergyMgmt.hh"
 
 using namespace std;
 using namespace TheISA;
@@ -686,6 +687,47 @@ void
 AtomicSimpleCPU::printAddr(Addr a)
 {
     dcachePort.printAddr(a);
+}
+
+/****** Energy Message Handler *******/
+// Todo: add a new idle tick_event for CPU to represent the idle state.
+int
+AtomicSimpleCPU::handleMsg(const EnergyMsg &msg) 
+{
+	Tick tick_remain = 0;
+	tick_recover = 0;
+	DPRINTF(EnergyMgmt, "[SimpleEnergySM] handleMsg called at %lu, msg.type=%d\n", curTick(), msg.type);
+
+	switch(msg.type)
+	{
+	case (int) SimpleEnergySM::MsgType::POWER_OFF:
+		// Todo: A more reasonable solution is to make up a backup/restore event.
+		// Backup procedure
+		tick_recover += cycle_backup*clockPeriod();
+		consumeEnergy(dev_name, power_cpu[2] * cycle_backup);
+		// Uncomplete time of current task (uncompleted cycle should be re-executed)
+		tick_remain = tickEvent.when() - curTick();
+		tick_recover += tick_remain + (clockPeriod() - tick_remain % clockPeriod());
+		// recover_time recover to zero.
+		recover_time = 0;
+		// remove the next tickEvent until power on
+		assert(tickEvent.scheduled());
+		deschedule(tickEvent);
+		break;
+
+	case (int) SimpleEnergySM::MsgType::POWER_ON:
+		// Restore procedure
+		tick_recover += cycle_restore*clockPeriod();
+		consumeEnergy(dev_name, power_cpu[2] * cycle_restore);
+		// reschedule the next tickEvent
+		schedule(tickEvent, curTick() + tick_recover);
+		break;
+
+	default: 
+		return 0;
+	}
+
+	return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////

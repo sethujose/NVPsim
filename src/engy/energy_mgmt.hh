@@ -10,6 +10,7 @@
 #include "params/EnergyMgmt.hh"
 #include "sim/sim_object.hh"
 #include "sim/eventq.hh"
+#include "energy_port.hh"
 
 class EnergyMgmt : public SimObject
 {
@@ -25,8 +26,8 @@ public:
     // Harvest energy if val < 0
     virtual int consumeEnergy(char *consumer, double val);
     void broadcastMsg();
-    //int broadcastMsgAsEvent(const EnergyMsg &msg);
-    //int handleMsg(const EnergyMsg &msg);
+    int broadcastMsgAsEvent(const EnergyMsg &msg);
+    int handleMsg(const EnergyMsg &msg);
 
                 double system_leakage;
                 double energy_profile_mult;
@@ -35,8 +36,8 @@ protected:
     double energy_remained;
     /* msg_togo is changed into a queue to prevent bugs in case that multiple
     state changes occurs in one tick. */
-    //std::vector<EnergyMsg> msg_togo;
-    //EventWrapper<EnergyMgmt, &EnergyMgmt::broadcastMsg> event_msg;
+    std::vector<EnergyMsg> msg_togo;
+    EventWrapper<EnergyMgmt, &EnergyMgmt::broadcastMsg> event_msg;
     std::vector<double> energy_harvest_data;
     void energyHarvest();
     EventWrapper<EnergyMgmt, &EnergyMgmt::energyHarvest> event_energy_harvest;

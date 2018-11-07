@@ -1,5 +1,7 @@
 Import('*')
 
+Source('energy_object.cc')
+Source('energy_port.cc')
 Source('energy_mgmt.cc')
 Source('state_machine.cc')
 Source('two_thres.cc')

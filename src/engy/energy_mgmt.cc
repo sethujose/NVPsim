@@ -1,14 +1,14 @@
 //
 // Created by lf-z on 12/28/16.
 //
-#include <cmath>
-#include <cstring>
 #include <fstream>
-
-#include "debug/EnergyMgmt.hh"
-#include "engy/energy_mgmt.hh"
+#include <math.h>
+#include <string.h>
 #include "sim/eventq.hh"
+#include "engy/energy_mgmt.hh"
 #include "engy/state_machine.hh"
+#include "engy/energy_harvester.hh"
+#include "debug/EnergyMgmt.hh"
 
 #if 0 //TODO: IMPLEMENT LEAKAGE
 extern bool DFS_LRY_poweron_dirty_patch;
@@ -20,14 +20,14 @@ EnergyMgmt::EnergyMgmt(const Params *p)
           energy_profile_mult(p->energy_profile_mult),
           time_unit(p->energy_time_unit),
           energy_remained(0),
-          //event_msg(this, false, Event::Energy_Pri),
+          event_msg(this, false, Event::Energy_Pri),
           event_energy_harvest(this, false, Event::Energy_Pri),
           state_machine(p->state_machine),
           harvest_module(p->harvest_module),
           capacity(p->capacity),
           _path_energy_profile(p->path_energy_profile)
 {
-    //msg_togo.resize(0);
+    msg_togo.resize(0);
 }
 
 EnergyMgmt::~EnergyMgmt() {}
@@ -135,6 +135,47 @@ std::vector<double> EnergyMgmt::readEnergyProfile()
 
     DPRINTF(EnergyMgmt, "[EngyMgmt] Input file read!\n");
     return data;
+}
+
+// Broadcast energy messages via master energy port
+void 
+EnergyMgmt::broadcastMsg()
+{
+    /* Broadcast the first message in the msg queue. */
+    _meport.broadcastMsg(msg_togo[0]);
+    /* Delete the message we broadcast. */
+    msg_togo.erase(msg_togo.begin());
+    /* If there are still messages, schedule a new event. */
+    if (!msg_togo.empty())
+        schedule(event_msg, curTick());
+}
+
+// Todo: find out the usage of this function
+int EnergyMgmt::broadcastMsgAsEvent(const EnergyMsg &msg)
+{
+    msg_togo.push_back(msg);
+    /* Trigger first msg in the current tick. */
+    if (msg_togo.size() == 1)
+        schedule(event_msg, curTick());
+    return 1;
+}
+
+// The energy manager is not only the message sender but also a receiver. All the messages processed here. The energy manager handles the energy consuming/harvesting events, while for other messages, this function will make a statement of the messages.
+int 
+EnergyMgmt::handleMsg(const EnergyMsg &msg)
+{
+    // Statement of the current message (except consumes)
+    if (msg.type != CONSUME_ENERGY)
+    {
+        DPRINTF(EnergyMgmt, "HandleMsg called at %lu, msg.type=%d\n", curTick(), msg.type);
+    }
+
+    else if (msg.type == CONSUME_ENERGY)
+    {
+        return consumeEnergy(msg.sender, msg.val);
+    }
+
+    return 0;
 }
 
 /* Energy harvest function provides an harvest event, where an

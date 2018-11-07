@@ -57,6 +57,7 @@
 #include "sim/eventq.hh"
 #include "sim/eventq_impl.hh"
 #include "sim/serialize.hh"
+#include "engy/energy_object.hh"  
 
 class EventManager;
 class ProbeManager;
@@ -91,7 +92,7 @@ class ProbeManager;
  * SimObject.py). This has the effect of calling the method on the
  * parent node <i>before</i> its children.
  */
-class SimObject : public EventManager, public Serializable, public Drainable
+class SimObject : public EventManager, public Serializable, public Drainable, public EnergyObject
 {
   private:
     typedef std::vector<SimObject *> SimObjectList;

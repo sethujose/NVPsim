@@ -70,6 +70,10 @@ class AtomicSimpleCPU : public BaseSimpleCPU
     // main simulation loop (one cycle)
     void tick();
 
+
+	  /* Energy message handler */
+	  virtual int handleMsg(const EnergyMsg &msg);
+
     /**
      * Check if a system is in a drained state.
      *
