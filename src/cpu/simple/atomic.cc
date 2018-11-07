@@ -60,6 +60,7 @@
 #include "sim/full_system.hh"
 #include "sim/system.hh"
 #include "debug/EnergyMgmt.hh"
+#include "engy/state_machine.hh"
 
 using namespace std;
 using namespace TheISA;
@@ -669,6 +670,9 @@ AtomicSimpleCPU::tick()
     // instruction takes at least one cycle
     if (latency < clockPeriod())
         latency = clockPeriod();
+
+    // energy consumption of this tick
+	consumeEnergy(dev_name, power_cpu[2] * ticksToCycles(latency));
 
     if (_status != Idle)
         reschedule(tickEvent, curTick() + latency, true);
