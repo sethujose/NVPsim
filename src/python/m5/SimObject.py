@@ -1140,6 +1140,10 @@ class SimObject(object):
         # apply attribute assignments from keyword args, if any
         for key,val in kwargs.iteritems():
             setattr(self, key, val)
+        
+        # Energy Ports of SimObject
+        self.__dict__['m_energy_port'] = MasterEnergyPort(self)
+        self.__dict__['s_energy_port'] = SlaveEnergyPort(self)
 
     # "Clone" the current instance by creating another instance of
     # this instance's class, but that inherits its parameter values
@@ -1569,6 +1573,10 @@ class SimObject(object):
         # order is the same on all hosts
         for (attr, portRef) in sorted(self._port_refs.iteritems()):
             portRef.ccConnect()
+    
+    # Create C++ energy port connection
+    def connectEnergyPorts(self):
+        self.m_energy_port.connect()
 
     # Default function for generating the device structure.
     # Can be overloaded by the inheriting class

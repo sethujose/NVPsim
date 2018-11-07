@@ -22,7 +22,7 @@ system.energy_mgmt.capacity = cap;				# uF
 system.energy_mgmt.system_leakage = 0.2;			# leakage
 
 system.cpu = AtomicSimpleCPU()
-#system.cpu.s_energy_port = system.energy_mgmt.m_energy_port
+system.cpu.s_energy_port = system.energy_mgmt.m_energy_port
 
 system.membus = SystemXBar()
 

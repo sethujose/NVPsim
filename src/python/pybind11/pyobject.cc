@@ -74,6 +74,23 @@ lookupEthPort(SimObject *so, const std::string &name, int i)
 }
 
 /**
+ * Connect the energy ports between two SimObjects. Called from Python via Swig.
+ * o1 should be master (EnergyMgmt), while o2 should be slave.
+ */
+int
+connectEnergyPorts(SimObject *o1, SimObject *o2)
+{
+    /* Todo: this function should be used in simulation script to connect modules we care about. */
+    /* Todo: connection of modules should be controlled by configuration files. */
+
+    MasterEnergyPort& meport = o1->getMasterEnergyPort();
+    SlaveEnergyPort& seport = o2->getSlaveEnergyPort();
+    meport.bindSlave(seport);
+
+    return 1;
+}
+
+/**
  * Connect the described MemObject ports.  Called from Python.
  * The indices i1 & i2 will be -1 for regular ports, >= 0 for vector ports.
  * SimObject1 is the master, and SimObject2 is the slave
