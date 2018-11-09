@@ -78,6 +78,8 @@ AtomicSimpleCPU::init()
 
 AtomicSimpleCPU::AtomicSimpleCPU(AtomicSimpleCPUParams *p)
     : BaseSimpleCPU(p),
+      cycle_backup(p->cycle_backup),
+	  cycle_restore(p->cycle_restore),
       tickEvent([this]{ tick(); }, "AtomicSimpleCPU tick",
                 false, Event::CPU_Tick_Pri),
       width(p->width), locked(false),
@@ -87,11 +89,20 @@ AtomicSimpleCPU::AtomicSimpleCPU(AtomicSimpleCPUParams *p)
       dcachePort(name() + ".dcache_port", this),
       dcache_access(false), dcache_latency(0),
       ppCommit(nullptr)
-{
+{   strcpy(dev_name, "AtomicCPU");
     _status = Idle;
     ifetch_req = std::make_shared<Request>();
     data_read_req = std::make_shared<Request>();
     data_write_req = std::make_shared<Request>();
+
+    // the initialization energy state: OFF                                     |  ------------------------------------------------------------------------------------
+    cpu_energy_state = EngyState::STATE_POWER_OFF;   
+
+    // the energy consumption of each cycle defines the cost of three modes (OFF, SLEEP, ACTIVE)
+    
+	power_cpu[0] = p->power_cpu[0];
+	power_cpu[1] = p->power_cpu[1];
+	power_cpu[2] = p->power_cpu[2];
 }
 
 

@@ -61,6 +61,11 @@ class AtomicSimpleCPU(BaseSimpleCPU):
     width = Param.Int(1, "CPU width")
     simulate_data_stalls = Param.Bool(False, "Simulate dcache stall cycles")
     simulate_inst_stalls = Param.Bool(False, "Simulate icache stall cycles")
+		
+    power_cpu = VectorParam.Float([], "Energy consumption per cycle of CPU")
+    
+    cycle_backup = Param.Int(1, "Cycles for CPU backup") 
+    cycle_restore = Param.Int(1, "Cycles for CPU restore")
 
     def addSimPointProbe(self, interval):
         simpoint = SimPoint()

@@ -57,7 +57,7 @@ void EnergyMgmt::init()
 // Handling the energy consumption as well as energy harvesting
 int
 EnergyMgmt::consumeEnergy(char *sender, double val)
-{
+{   
     double cons_unit, harv_unit;
     double cap_volt_upper_bound = 5;
     double lower_bound = state_machine->energy_consume_lower_bound; // nJ
@@ -67,7 +67,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
     if (val > 0) {
         energy_remained -= val;
         cons_unit = val;
-
+        
         // The energy remained has a lower bound. When the lower bound is meet, the system need to power off. Energy > 0 / retention threshold.
         if (energy_remained < lower_bound) {
             cons_unit -= (lower_bound - energy_remained);
@@ -163,7 +163,7 @@ int EnergyMgmt::broadcastMsgAsEvent(const EnergyMsg &msg)
 // The energy manager is not only the message sender but also a receiver. All the messages processed here. The energy manager handles the energy consuming/harvesting events, while for other messages, this function will make a statement of the messages.
 int 
 EnergyMgmt::handleMsg(const EnergyMsg &msg)
-{
+{   
     // Statement of the current message (except consumes)
     if (msg.type != CONSUME_ENERGY)
     {

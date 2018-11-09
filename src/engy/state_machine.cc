@@ -13,6 +13,12 @@ BaseEnergySM::BaseEnergySM(const Params *p) : SimObject(p), mgmt(NULL)
 	energy_consume_lower_bound = 0;
 }
 
+void 
+BaseEnergySM::broadcastMsg(const EnergyMsg &msg)
+{
+	mgmt->broadcastMsgAsEvent(msg);
+}
+
 /******* SimpleEnergySM *******/
 SimpleEnergySM::SimpleEnergySM(const Params *p) :
 	BaseEnergySM(p),
@@ -27,11 +33,11 @@ SimpleEnergySM::SimpleEnergySM(const Params *p) :
 void
 SimpleEnergySM::init()
 {
-	// EnergyMsg msg;
-	// msg.val = 0;
+	EnergyMsg msg;
+	msg.val = 0;
 	state = State::STATE_POWER_OFF;
-	// msg.type = MsgType::POWER_OFF;
-	// broadcastMsg(msg);
+	msg.type = MsgType::POWER_OFF;
+	broadcastMsg(msg);
 
 	//
 	std::ofstream fout;
@@ -44,34 +50,36 @@ SimpleEnergySM::init()
 
 void SimpleEnergySM::update(double _energy)
 {
-	// EnergyMsg msg;
-	// msg.val = 0;
+	EnergyMsg msg;
+	msg.val = 0;
+
+	DPRINTF(EnergyMgmt, "[SimpleEngySM] 1.State: %s, energy=%lf, thres=%lf.\n", state, _energy, thres_1_to_off);
 
 	// power failure
 	if (state == STATE_POWER_ON && _energy <= thres_1_to_off)
 	{
 		state = State::STATE_POWER_OFF;
-		// msg.type = MsgType::POWER_OFF;
-		DPRINTF(EnergyMgmt, "[SimpleEngySM] State change: POWER_ON->POWER_OFF, energy=%lf, thres=%lf.\n", _energy, thres_1_to_off);
+		msg.type = MsgType::POWER_OFF;
+		DPRINTF(EnergyMgmt, "[SimpleEngySM] 1.State change: POWER_ON->POWER_OFF, energy=%lf, thres=%lf.\n", _energy, thres_1_to_off);
 
 		// Calculate Power failure times
 		outage_times++;
-		std::ofstream fout("m5out/power_failure");
+		//std::ofstream fout("m5out/power_failure");
 		//fout.open("m5out/power_failure", std::ios::app);
-		assert(fout);
-		fout << outage_times << std::endl;
-		fout.close();
+		//assert(fout);
+		//fout << outage_times << std::endl;
+		//fout.close();
 
-		//broadcastMsg(msg);
+		broadcastMsg(msg);
 	}
 
 	// power recovery
 	else if (state == State::STATE_POWER_OFF && _energy >= thres_off_to_1)
 	{
 		state = State::STATE_POWER_ON;
-		// msg.type = MsgType::POWER_ON;
+		msg.type = MsgType::POWER_ON;
 		DPRINTF(EnergyMgmt, "[SimpleEngySM] State change: POWER_OFF->POWER_ON, energy=%lf, thres=%lf.\n", _energy, thres_off_to_1);
-		//broadcastMsg(msg);
+		broadcastMsg(msg);
 	}
 }
 

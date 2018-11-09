@@ -30,7 +30,7 @@ public:
 
 protected:
 	EnergyMgmt *mgmt;
-	//void broadcastMsg(const EnergyMsg &msg);
+	void broadcastMsg(const EnergyMsg &msg);
 	double energy_consume_lower_bound;
 };
 

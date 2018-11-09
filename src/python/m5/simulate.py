@@ -83,7 +83,7 @@ def instantiate(ckpt_dir=None):
 
     # we need to fix the global frequency
     ticks.fixGlobalFrequency()
-
+    
     # Make sure SimObject-valued params are in the configuration
     # hierarchy so we catch them with future descendants() walks
     for obj in root.descendants(): obj.adoptOrphanParams()
@@ -117,7 +117,7 @@ def instantiate(ckpt_dir=None):
     for obj in root.descendants(): obj.createCCObject()
     for obj in root.descendants(): obj.connectPorts()
     for obj in root.descendants(): obj.connectEnergyPorts()
-
+    
     # Do a second pass to finish initializing the sim objects
     for obj in root.descendants(): obj.init()
 

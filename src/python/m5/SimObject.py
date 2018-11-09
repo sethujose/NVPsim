@@ -1215,6 +1215,13 @@ class SimObject(object):
             self._get_port_ref(attr).connect(value)
             return
 
+        # Dirty way to connect energy port
+        if hasattr(self, attr) and isinstance(getattr(self, attr), EnergyPort):
+            assert(isinstance(value, EnergyPort))
+            energy_port = getattr(self, attr)
+            energy_port.connectRef(value)
+            return
+
         param = self._params.get(attr)
         if param:
             try:

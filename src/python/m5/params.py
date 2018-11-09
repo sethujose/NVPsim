@@ -1737,7 +1737,7 @@ class MasterEnergyPort(EnergyPort):
         self.slave_list.append(slave)
         slave.is_connected = True
     def connect(self):
-        from m5.internal.pyobject import connectEnergyPorts
+        from _m5.pyobject import connectEnergyPorts
         for slave in self.slave_list:
             connectEnergyPorts(self.simobj.getCCObject(), slave.simobj.getCCObject())
 

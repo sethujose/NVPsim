@@ -158,4 +158,5 @@ pybind_init_pyobject(py::module &m_native)
     py::module m = m_native.def_submodule("pyobject");
 
     m.def("connectPorts", &connectPorts);
+    m.def("connectEnergyPorts", &connectEnergyPorts);
 }
