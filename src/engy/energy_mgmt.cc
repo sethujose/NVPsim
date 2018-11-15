@@ -103,7 +103,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
         else if (energy_remained < lower_bound) {
             energy_remained = lower_bound;
         }
-        DPRINTF(EnergyMgmt, "[EngyMgmt] Energy %lf is harvested. Energy remained: %lf\n", harv_unit, energy_remained);
+        //DPRINTF(EnergyMgmt, "[EngyMgmt] Energy %lf is harvested. Energy remained: %lf\n", harv_unit, energy_remained);
         //DPRINTF(EnergyMgmt, "%lf\n", energy_remained);
     }
 
@@ -196,7 +196,7 @@ EnergyMgmt::energyHarvest()
     consumeEnergy(dev_name, -energy_val);
     energy_harvest_data.pop_back();
 
-    DPRINTF(EnergyMgmt, "[EngyMgmt] Energy read: %lf!\n", energy_val);
+    //DPRINTF(EnergyMgmt, "[EngyMgmt] Energy read: %lf!\n", energy_val);
 
     /* Trigger the next harvest function. */
     schedule(event_energy_harvest, curTick() + time_unit);

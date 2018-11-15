@@ -97,12 +97,11 @@ AtomicSimpleCPU::AtomicSimpleCPU(AtomicSimpleCPUParams *p)
 
     // the initialization energy state: OFF                                     |  ------------------------------------------------------------------------------------
     cpu_energy_state = EngyState::STATE_POWER_OFF;   
-
-    // the energy consumption of each cycle defines the cost of three modes (OFF, SLEEP, ACTIVE)
     
-	power_cpu[0] = p->power_cpu[0];
-	power_cpu[1] = p->power_cpu[1];
-	power_cpu[2] = p->power_cpu[2];
+	// the energy consumption of each cycle defines the cost of three modes (OFF, SLEEP, ACTIVE)
+	power_cpu[STATE_POWER_OFF] = p->power_cpu[STATE_POWER_OFF];
+	power_cpu[STATE_SLEEP] = p->power_cpu[STATE_SLEEP];
+	power_cpu[STATE_NORMAL] = p->power_cpu[STATE_NORMAL];
 }
 
 
@@ -175,6 +174,7 @@ AtomicSimpleCPU::drainResume()
 
             // Tick if any threads active
             if (!tickEvent.scheduled()) {
+                DPRINTF(EnergyMgmt, "Tick scheduled from  drainResume\n");
                 schedule(tickEvent, nextCycle());
             }
         } else {
@@ -246,6 +246,8 @@ AtomicSimpleCPU::activateContext(ThreadID thread_num)
 
     if (!tickEvent.scheduled()) {
         //Make sure ticks are still on multiples of cycles
+        DPRINTF(EnergyMgmt, "Tick scheduled from  activateContext\n");
+
         schedule(tickEvent, clockEdge(Cycles(0)));
     }
     _status = BaseSimpleCPU::Running;
@@ -683,10 +685,14 @@ AtomicSimpleCPU::tick()
         latency = clockPeriod();
 
     // energy consumption of this tick
-	consumeEnergy(dev_name, power_cpu[2] * ticksToCycles(latency));
+	consumeEnergy(dev_name, power_cpu[cpu_energy_state] * ticksToCycles(latency));
 
     if (_status != Idle)
+    {
+        DPRINTF(EnergyMgmt, "I'm here\n");
         reschedule(tickEvent, curTick() + latency, true);
+    }
+        
 }
 
 void
@@ -711,35 +717,59 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 {
 	Tick tick_remain = 0;
 	tick_recover = 0;
-	DPRINTF(EnergyMgmt, "[SimpleEnergySM] handleMsg called at %lu, msg.type=%d\n", curTick(), msg.type);
+	DPRINTF(EnergyMgmt, "[SM_Retention] handleMsg called at %lu, msg.type=%d\n", curTick(), msg.type);
 
-	switch(msg.type)
-	{
-	case (int) SimpleEnergySM::MsgType::POWER_OFF:
-		// Todo: A more reasonable solution is to make up a backup/restore event.
-		// Backup procedure
-		tick_recover += cycle_backup*clockPeriod();
-		consumeEnergy(dev_name, power_cpu[2] * cycle_backup);
-		// Uncomplete time of current task (uncompleted cycle should be re-executed)
-		tick_remain = tickEvent.when() - curTick();
-		tick_recover += tick_remain + (clockPeriod() - tick_remain % clockPeriod());
-		// recover_time recover to zero.
+    if (tickEvent.scheduled())
+    {
+        DPRINTF(EnergyMgmt, "[TickEvent] Tick status:scheduled\n");
+    }
+    else
+    {
+        DPRINTF(EnergyMgmt, "[TickEvent] Tick status:unscheduled\n");
+    }
+
+	// Power off: fail and completely restart
+	if (msg.type == SimpleEnergySM::MsgType::POWER_OFF) {
+		// In state-retention strategy, Power failure means restart from the very beginning
+		// peripheral recover_time reset to zero.
 		recover_time = 0;
 		// remove the next tickEvent until power on
 		assert(tickEvent.scheduled());
 		deschedule(tickEvent);
-		break;
+		// Set CPU energy state
+		cpu_energy_state = EngyState::STATE_POWER_OFF;
+	}
 
-	case (int) SimpleEnergySM::MsgType::POWER_ON:
-		// Restore procedure
-		tick_recover += cycle_restore*clockPeriod();
-		consumeEnergy(dev_name, power_cpu[2] * cycle_restore);
-		// reschedule the next tickEvent
-		schedule(tickEvent, curTick() + tick_recover);
-		break;
+	// Power retention: keep the state and reschedule the current operation
+	else if (msg.type == SimpleEnergySM::MsgType::POWER_RET) {
+		// Remaining time of current tickEvent (uncompleted cycle should be re-executed)
+		tick_remain = tickEvent.when() - curTick();
+		tick_recover += tick_remain + (clockPeriod() - tick_remain % clockPeriod());
+		// peripheral recover_time reset to zero.
+		recover_time = 0;
+		// remove the next tickEvent until power on
+		assert(tickEvent.scheduled());
+		deschedule(tickEvent);
+		// Set CPU energy state
+		cpu_energy_state = EngyState::STATE_SLEEP; 
+	}
 
-	default: 
-		return 0;
+	// Power on: restart or recover
+	else if (msg.type == SimpleEnergySM::MsgType::POWER_ON) {
+		// retention --> power on
+		if (cpu_energy_state == EngyState::STATE_SLEEP) {
+			// keep on the execution
+			schedule(tickEvent, tick_recover);
+			tick_recover  = 0;
+			// Set CPU energy state
+			cpu_energy_state = EngyState::STATE_NORMAL;
+		}
+
+		else if (cpu_energy_state == EngyState::STATE_POWER_OFF) {
+			// Todo: restart the operation
+			// Set CPU energy state
+			cpu_energy_state = EngyState::STATE_NORMAL;
+		}
 	}
 
 	return 1;

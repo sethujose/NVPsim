@@ -51,14 +51,16 @@ public:
 	// The states defined by energy managing algorithm
 	enum State {
 		STATE_POWER_OFF = 0,
-		STATE_POWER_ON = 1
+		STATE_POWER_RETENTION = 1,
+		STATE_POWER_ON = 2
 	};
 
 	// Messages
 	enum MsgType {
 		CONSUME_ENERGY = 0,
 		POWER_OFF = 1,
-		POWER_ON = 2
+		POWER_RET = 2,
+		POWER_ON = 3
 	};
 
 
@@ -66,8 +68,9 @@ public:
 
 protected:
 	State state;
-	double thres_1_to_off;
-	double thres_off_to_1;
+	double thres_ret_to_off;
+	double thres_1_to_ret;
+	double thres_ret_to_1; 
 };
 
 #endif //GEM5_STATE_MACHINE_HH

@@ -58,7 +58,7 @@ class AtomicSimpleCPU : public BaseSimpleCPU
 
     void init() override;
 
-    double power_cpu[3] = {0, 0.3, 1.3};   // nJ/cycle
+    double power_cpu[3] = {0.0, 0.3, 1.3};   // nJ/cycle
     double clkmult = 1;
  
     enum EngyState {

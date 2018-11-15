@@ -11,12 +11,13 @@ system.mem_ranges = [AddrRange('512MB')]
 #this needs to be passed from console
 cap = 1 * 0.2
 
-system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/my_engy_prof',
-                                energy_time_unit = '1us')
+system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/energy_prof2', energy_time_unit = '1us')
+#system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/my_engy_prof', energy_time_unit = '1us')
 
 # Threshold Design for the state machine
-system.energy_mgmt.state_machine.thres_1_to_off = 100
-system.energy_mgmt.state_machine.thres_off_to_1 = 180
+system.energy_mgmt.state_machine.thres_ret_to_off = 40
+system.energy_mgmt.state_machine.thres_1_to_ret = 75
+system.energy_mgmt.state_machine.thres_ret_to_1 = 80
 system.energy_mgmt.capacity = cap;				# uF
 system.energy_mgmt.system_leakage = 0.2;			# leakage
 
