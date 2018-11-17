@@ -76,7 +76,6 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
         if (strcmp(sender, "AtomicCPU")==0) {
             DPRINTF(EnergyMgmt, "Energy %lf is consumed by %s. Energy remained: %lf\n", cons_unit, sender, energy_remained);
         }
-
     }
     // Energy Harvesting, if val < 0
     else if (val < 0) {     
@@ -104,14 +103,10 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
         else if (energy_remained < lower_bound) {
             energy_remained = lower_bound;
         }
-        //DPRINTF(EnergyMgmt, "[EngyMgmt] Energy %lf is harvested. Energy remained: %lf\n", harv_unit, energy_remained);
-        //DPRINTF(EnergyMgmt, "%lf\n", energy_remained);
-
     }
 
     // judge if energy_remained triggers state_machine changes
     state_machine->update(energy_remained);
-    DPRINTF(EnergyMgmt, "end of consume energy!\n");
 
     return 1;
 }
