@@ -16,8 +16,8 @@ system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/energy_prof2', en
 
 # Threshold Design for the state machine
 system.energy_mgmt.state_machine.thres_ret_to_off = 40
-system.energy_mgmt.state_machine.thres_1_to_ret = 75
-system.energy_mgmt.state_machine.thres_ret_to_1 = 80
+system.energy_mgmt.state_machine.thres_1_to_ret = 120
+system.energy_mgmt.state_machine.thres_ret_to_1 = 130
 system.energy_mgmt.capacity = cap;				# uF
 system.energy_mgmt.system_leakage = 0.2;			# leakage
 

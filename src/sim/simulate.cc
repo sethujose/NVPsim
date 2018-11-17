@@ -112,23 +112,24 @@ simulate(Tick num_cycles)
         num_cycles = MaxTick;
 
     simulate_limit_event->reschedule(num_cycles);
-
+    
     GlobalSyncEvent *quantum_event = NULL;
-    if (numMainEventQueues > 1) {
+    if (numMainEventQueues > 1) {//it does not enter this if statement
         if (simQuantum == 0) {
             fatal("Quantum for multi-eventq simulation not specified");
         }
 
         quantum_event = new GlobalSyncEvent(curTick() + simQuantum, simQuantum,
                             EventBase::Progress_Event_Pri, 0);
-
         inParallelMode = true;
     }
+       
 
     // all subordinate (created) threads should be waiting on the
     // barrier; the arrival of the main thread here will satisfy the
     // barrier, and all threads will enter doSimLoop in parallel
     threadBarrier->wait();
+     inform("AFTER RESCHEDULE: \n");
     Event *local_event = doSimLoop(mainEventQueue[0]);
     assert(local_event != NULL);
 

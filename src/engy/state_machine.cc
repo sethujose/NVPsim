@@ -61,6 +61,7 @@ void SimpleEnergySM::update(double _energy)
 		&& _energy <= thres_ret_to_off ) 
 	{
 		state = State::STATE_POWER_OFF;
+		//thres_ret_to_1 = 10000000;
 		msg.type = MsgType::POWER_OFF;
 
 		if (state == State::STATE_POWER_ON)
@@ -98,6 +99,7 @@ void SimpleEnergySM::update(double _energy)
 
 		state = State::STATE_POWER_ON;
 		msg.type = MsgType::POWER_ON;
+
 		broadcastMsg(msg);
 	}
 }

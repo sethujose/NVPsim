@@ -553,7 +553,7 @@ AtomicSimpleCPU::writeMem(uint8_t *data, unsigned size, Addr addr,
 void
 AtomicSimpleCPU::tick()
 {
-    DPRINTF(SimpleCPU, "Tick\n");
+    
 
     // Change thread if multi-threaded
     swapActiveThread();
@@ -574,8 +574,9 @@ AtomicSimpleCPU::tick()
 
     for (int i = 0; i < width || locked; ++i) {
         numCycles++;
-        updateCycleCounters(BaseCPU::CPU_STATE_ON);
-
+        ppAllCycles->notify(1);
+        //updateCycleCounters(BaseCPU::CPU_STATE_ON);
+       
         if (!curStaticInst || !curStaticInst->isDelayedCommit()) {
             checkForInterrupts();
             checkPcEventQueue();
@@ -583,6 +584,7 @@ AtomicSimpleCPU::tick()
 
         // We must have just got suspended by a PC event
         if (_status == Idle) {
+             
             tryCompleteDrain();
             return;
         }
@@ -595,6 +597,7 @@ AtomicSimpleCPU::tick()
                            !curMacroStaticInst;
         if (needToFetch) {
             ifetch_req->taskId(taskId());
+            DPRINTF(SimpleCPU, "Tick\n");
             setupFetchRequest(ifetch_req);
             fault = thread->itb->translateAtomic(ifetch_req, thread->getTC(),
                                                  BaseTLB::Execute);
@@ -677,20 +680,24 @@ AtomicSimpleCPU::tick()
             advancePC(fault);
     }
 
-    if (tryCompleteDrain())
+    if (tryCompleteDrain()){ //not bec of this
         return;
+    }
 
     // instruction takes at least one cycle
     if (latency < clockPeriod())
         latency = clockPeriod();
 
     // energy consumption of this tick
+    DPRINTF(SimpleCPU, "heyyyyyyyyyyyyyyy %ld\n",power_cpu[cpu_energy_state] * ticksToCycles(latency));
 	consumeEnergy(dev_name, power_cpu[cpu_energy_state] * ticksToCycles(latency));
+        
 
     if (_status != Idle)
     {
-        DPRINTF(EnergyMgmt, "I'm here\n");
+        
         reschedule(tickEvent, curTick() + latency, true);
+        DPRINTF(SimpleCPU, "I'm here\n");
     }
         
 }
@@ -732,10 +739,17 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 	if (msg.type == SimpleEnergySM::MsgType::POWER_OFF) {
 		// In state-retention strategy, Power failure means restart from the very beginning
 		// peripheral recover_time reset to zero.
-		recover_time = 0;
-		// remove the next tickEvent until power on
-		assert(tickEvent.scheduled());
+		
+        
+        recover_time = 0;
+		
+        
+        // remove the next tickEvent until power on
+        if(cpu_energy_state == EngyState::STATE_POWER_OFF)
+		{assert(tickEvent.scheduled());
 		deschedule(tickEvent);
+        }
+        
 		// Set CPU energy state
 		cpu_energy_state = EngyState::STATE_POWER_OFF;
 	}
@@ -743,7 +757,8 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 	// Power retention: keep the state and reschedule the current operation
 	else if (msg.type == SimpleEnergySM::MsgType::POWER_RET) {
 		// Remaining time of current tickEvent (uncompleted cycle should be re-executed)
-		tick_remain = tickEvent.when() - curTick();
+		tick_recover += cycle_backup*clockPeriod();
+        tick_remain = tickEvent.when() - curTick();
 		tick_recover += tick_remain + (clockPeriod() - tick_remain % clockPeriod());
 		// peripheral recover_time reset to zero.
 		recover_time = 0;
@@ -759,7 +774,7 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 		// retention --> power on
 		if (cpu_energy_state == EngyState::STATE_SLEEP) {
 			// keep on the execution
-			schedule(tickEvent, tick_recover);
+			//schedule(tickEvent, tick_recover);
 			tick_recover  = 0;
 			// Set CPU energy state
 			cpu_energy_state = EngyState::STATE_NORMAL;
@@ -770,6 +785,11 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 			// Set CPU energy state
 			cpu_energy_state = EngyState::STATE_NORMAL;
 		}
+        // Restore procedure
+		tick_recover += cycle_restore*clockPeriod();
+		//consumeEnergy(dev_name, power_cpu[2] * cycle_restore);
+		// reschedule the next tickEvent
+		schedule(tickEvent, curTick() + tick_recover);
 	}
 
 	return 1;
