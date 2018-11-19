@@ -15,3 +15,4 @@ SimObject('SimpleEnergySM.py')
 SimObject('TwoThresSM.py')
 
 DebugFlag('EnergyMgmt')
+DebugFlag('SM_Retention')

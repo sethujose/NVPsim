@@ -61,6 +61,7 @@
 #include "sim/system.hh"
 #include "debug/EnergyMgmt.hh"
 #include "engy/state_machine.hh"
+#include "debug/SM_Retention.hh"
 
 using namespace std;
 using namespace TheISA;
@@ -574,8 +575,8 @@ AtomicSimpleCPU::tick()
 
     for (int i = 0; i < width || locked; ++i) {
         numCycles++;
-        //ppAllCycles->notify(1);
         updateCycleCounters(BaseCPU::CPU_STATE_ON);
+        
         if (!curStaticInst || !curStaticInst->isDelayedCommit()) {
             checkForInterrupts();
             checkPcEventQueue();
@@ -717,7 +718,6 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 {
 	Tick tick_remain = 0;
 	tick_recover = 0;
-	DPRINTF(EnergyMgmt, "[SM_Retention] handleMsg called at %lu, msg.type=%d\n", curTick(), msg.type);
 
 	// Power off: fail and completely restart
 	if (msg.type == SimpleEnergySM::MsgType::POWER_OFF) {

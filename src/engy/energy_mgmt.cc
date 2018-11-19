@@ -9,6 +9,7 @@
 #include "engy/state_machine.hh"
 #include "engy/energy_harvester.hh"
 #include "debug/EnergyMgmt.hh"
+#include "debug/SM_Retention.hh"
 
 #if 0 //TODO: IMPLEMENT LEAKAGE
 extern bool DFS_LRY_poweron_dirty_patch;
@@ -62,7 +63,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
     double cap_volt_upper_bound = 5;
     double lower_bound = state_machine->energy_consume_lower_bound; // nJ
     double upper_bound = 0.5 * capacity * pow(cap_volt_upper_bound, 2) * pow(10, 3); // nJ
-    
+
     // Energy Consumption, if val > 0
     if (val > 0) {
         energy_remained -= val;
@@ -191,6 +192,7 @@ EnergyMgmt::energyHarvest()
     double energy_val = energy_harvest_data.back();
     char dev_name[100];
     strcpy(dev_name, "harvester");
+
     consumeEnergy(dev_name, -energy_val);
     energy_harvest_data.pop_back();
 
