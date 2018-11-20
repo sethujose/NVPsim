@@ -44,13 +44,15 @@ SimpleEnergySM::init()
 	DPRINTF(EnergyMgmt, "[SimpleEngySM] State machine Initialized\n");
 }
 
-void SimpleEnergySM::update(double _energy, double _engy_read)
+void SimpleEnergySM::update(double _energy, double _engy_read, char* sender)
 {
 	EnergyMsg msg;
 	msg.val = 0;
 
-
-	DPRINTF(SM_Retention, "%s, %lf, %lf\n", state, _energy, _engy_read);
+	if (strcmp(sender, "harvester") == 0)
+	{
+		DPRINTF(SM_Retention, "%s, %lf, %lf\n", state, _energy, _engy_read);
+	}
 
 	// power failure
 	if ( (state == State::STATE_POWER_ON || state == State::STATE_POWER_RETENTION) 

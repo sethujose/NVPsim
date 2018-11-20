@@ -108,7 +108,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
     }
 
     // judge if energy_remained triggers state_machine changes
-    state_machine->update(energy_remained, tempEnergyVal);
+    state_machine->update(energy_remained, tempEnergyVal, sender);
 
     return 1;
 }
