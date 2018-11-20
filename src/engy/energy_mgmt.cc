@@ -63,6 +63,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
     double cap_volt_upper_bound = 5;
     double lower_bound = state_machine->energy_consume_lower_bound; // nJ
     double upper_bound = 0.5 * capacity * pow(cap_volt_upper_bound, 2) * pow(10, 3); // nJ
+    double tempEnergyVal = val;
 
     // Energy Consumption, if val > 0
     if (val > 0) {
@@ -107,7 +108,7 @@ EnergyMgmt::consumeEnergy(char *sender, double val)
     }
 
     // judge if energy_remained triggers state_machine changes
-    state_machine->update(energy_remained);
+    state_machine->update(energy_remained, tempEnergyVal);
 
     return 1;
 }

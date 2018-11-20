@@ -70,9 +70,6 @@ class AtomicSimpleCPU : public BaseSimpleCPU
     /** Energy modes of vdev : [OFF, SLEEP, NORMAL]; **/
     EngyState cpu_energy_state;
 
-    	// Add for parallel recovery of vdev-s. The recover time is the maximum recover time of vdev-s.
-	  double recover_time = 0;
-
     /**
      * When power fails during a CPU task, the CPU should record the time of the remaining task.
       It is previously defined here as lat_remain.

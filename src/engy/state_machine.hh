@@ -26,7 +26,7 @@ public:
 	BaseEnergySM(const Params *p);
 	virtual ~BaseEnergySM() {}
 	virtual void init() {}
-	virtual void update(double _energy) {}
+	virtual void update(double _energy, double _engy_read) {}
 
 protected:
 	EnergyMgmt *mgmt;
@@ -46,7 +46,7 @@ public:
 	SimpleEnergySM(const Params *p);
 	virtual ~SimpleEnergySM() {}
 	virtual void init();
-	virtual void update(double _energy);
+	virtual void update(double _energy, double _engy_read);
 
 	// The states defined by energy managing algorithm
 	enum State {

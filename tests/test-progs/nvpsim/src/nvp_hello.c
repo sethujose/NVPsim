@@ -9,9 +9,9 @@ int main()
     
 	printf("Hello Gem5\n");
 	
-	while (u32_count < 10000)
+	while (u32_count < 100)
 	{
-	    for (uint32_t i = 0; i < 10000; i++);
+	    //for (uint32_t i = 0; i < ; i++);
 	    printf("u32_count: %d\n", u32_count++);  
 	}
 	

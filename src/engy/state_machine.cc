@@ -44,13 +44,13 @@ SimpleEnergySM::init()
 	DPRINTF(EnergyMgmt, "[SimpleEngySM] State machine Initialized\n");
 }
 
-void SimpleEnergySM::update(double _energy)
+void SimpleEnergySM::update(double _energy, double _engy_read)
 {
 	EnergyMsg msg;
 	msg.val = 0;
 
-	// if (state == State::STATE_POWER_RETENTION)
-	DPRINTF(SM_Retention, "[SM_Retention] State = %s, energy=%lf, thres_ret_1 = %lf\n", state, _energy, thres_ret_to_1);
+
+	DPRINTF(SM_Retention, "%s, %lf, %lf\n", state, _energy, _engy_read);
 
 	// power failure
 	if ( (state == State::STATE_POWER_ON || state == State::STATE_POWER_RETENTION) 
@@ -58,11 +58,6 @@ void SimpleEnergySM::update(double _energy)
 	{
 		state = State::STATE_POWER_OFF;
 		msg.type = MsgType::POWER_OFF;
-
-		if (state == State::STATE_POWER_ON)
-			DPRINTF(SM_Retention, "[SM_Retention] State change: POWER_ON->POWER_OFF, energy=%lf, thres=%lf.\n", _energy, thres_ret_to_off);
-		else if (state == State::STATE_POWER_RETENTION)
-			DPRINTF(SM_Retention, "[SM_Retention] State change: POWER_RET->POWER_OFF, energy=%lf, thres=%lf.\n", _energy, thres_ret_to_off);
 
 		broadcastMsg(msg);
 	} 
@@ -72,7 +67,7 @@ void SimpleEnergySM::update(double _energy)
 	{
 		state = State::STATE_POWER_RETENTION;
 		msg.type = MsgType::POWER_RET;
-		DPRINTF(SM_Retention, "[SM_Retention] State change: POWER_ON->POWER_RET, energy=%lf, thres=%lf.\n", _energy, thres_1_to_ret);
+		
 		broadcastMsg(msg);
 	}
 
@@ -80,11 +75,6 @@ void SimpleEnergySM::update(double _energy)
 	else if ( (state == State::STATE_POWER_OFF || state == State::STATE_POWER_RETENTION)
 		&& _energy >= thres_ret_to_1) 
 	{
-		if (state == State::STATE_POWER_OFF)
-			DPRINTF(SM_Retention, "[SM_Retention] State change: POWER_OFF->POWER_ON, energy=%lf, thres=%lf.\n", _energy, thres_ret_to_1);
-		else if (state == State::STATE_POWER_RETENTION)
-			DPRINTF(SM_Retention, "[SM_Retention] State change: POWER_RET->POWER_ON, energy=%lf, thres=%lf.\n", _energy, thres_ret_to_1);
-
 		state = State::STATE_POWER_ON;
 		msg.type = MsgType::POWER_ON;
 		broadcastMsg(msg);

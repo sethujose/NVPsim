@@ -3,7 +3,7 @@ from m5.objects import *
 
 system = System()
 system.clk_domain = SrcClockDomain()
-system.clk_domain.clock = '1MHz'
+system.clk_domain.clock = '100MHz'
 system.clk_domain.voltage_domain = VoltageDomain()
 system.mem_mode = 'atomic'
 system.mem_ranges = [AddrRange('512MB')]
@@ -11,13 +11,13 @@ system.mem_ranges = [AddrRange('512MB')]
 #this needs to be passed from console
 cap = 1 * 0.2
 
-system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/high_res_sine', energy_time_unit = '1us')
+system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/high_res_sine', energy_time_unit = '10ns')
 #system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/energy_prof', energy_time_unit = '1us')
 
 # Threshold Design for the state machine
 system.energy_mgmt.state_machine.thres_ret_to_off = 40
-system.energy_mgmt.state_machine.thres_1_to_ret = 120
-system.energy_mgmt.state_machine.thres_ret_to_1 = 130
+system.energy_mgmt.state_machine.thres_1_to_ret = 80
+system.energy_mgmt.state_machine.thres_ret_to_1 = 500
 system.energy_mgmt.capacity = cap;				# uF
 system.energy_mgmt.system_leakage = 0.2;			# leakage
 
