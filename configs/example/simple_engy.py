@@ -11,7 +11,7 @@ system.mem_ranges = [AddrRange('512MB')]
 #this needs to be passed from console
 cap = 1 * 0.2
 
-system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/high_res_sine', energy_time_unit = '10ns')
+system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/sine_wave/high_res_sine', energy_time_unit = '10ns')
 #system.energy_mgmt = EnergyMgmt(path_energy_profile = 'profile/energy_prof', energy_time_unit = '1us')
 
 # Threshold Design for the state machine
