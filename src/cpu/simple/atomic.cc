@@ -717,14 +717,14 @@ int
 AtomicSimpleCPU::handleMsg(const EnergyMsg &msg) 
 {
 	Tick tick_remain = 0;
-	tick_recover = 0;
-
+	
 	// Power off: fail and completely restart
 	if (msg.type == SimpleEnergySM::MsgType::POWER_OFF) {
 		// In state-retention strategy, Power failure means restart from the very beginning
 	
         assert(tickEvent.scheduled());
 		deschedule(tickEvent);
+        tick_recover = 0;
         
 		// Set CPU energy state
 		cpu_energy_state = EngyState::STATE_POWER_OFF;
@@ -739,7 +739,8 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 
         // remove the next tickEvent until power on
 		assert(tickEvent.scheduled());
-		reschedule(tickEvent, curTick() + tick_recover, false);
+        deschedule(tickEvent);
+		//reschedule(tickEvent, curTick() + tick_recover, false);
 
 		// Set CPU energy state        
         cpu_energy_state = EngyState::STATE_SLEEP; 
@@ -754,8 +755,8 @@ AtomicSimpleCPU::handleMsg(const EnergyMsg &msg)
 		if (cpu_energy_state == EngyState::STATE_SLEEP) {
             // Restore procedure
 
-            assert(tickEvent.scheduled());
-		    deschedule(tickEvent);
+            //assert(tickEvent.scheduled());
+		    //deschedule(tickEvent);
 		    
             tick_recover += cycle_restore*clockPeriod();			// Set CPU energy state
 		    cpu_energy_state = EngyState::STATE_NORMAL;
